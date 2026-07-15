@@ -11,6 +11,8 @@
             padding: 0;
             box-sizing: border-box;
         }
+
+        /* ===== CURSOR TUYẾT ===== */
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
             background: #0b0b0b;
@@ -20,6 +22,60 @@
             align-items: center;
             padding: 20px;
             position: relative;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text y="28" font-size="28" fill="white" font-family="Arial">❄</text></svg>') 16 16, auto;
+        }
+
+        /* ===== CANVAS TUYẾT ===== */
+        #snowCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===== ĐỒNG HỒ ===== */
+        .datetime-widget {
+            position: fixed;
+            top: 32px;
+            left: 32px;
+            background: transparent;
+            color: #fff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            text-align: left;
+            z-index: 1000;
+            user-select: none;
+            pointer-events: none;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        .datetime-widget.show {
+            display: block;
+            opacity: 1;
+        }
+        .datetime-widget .time {
+            font-size: 3.4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1.1;
+            color: #fff;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+            font-variant-numeric: tabular-nums;
+        }
+        .datetime-widget .date {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            margin-top: 6px;
+            text-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 6px;
+            display: inline-block;
         }
 
         .overlay {
@@ -104,6 +160,8 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             transition: transform 0.3s ease;
             border: 2px solid #1a1a1a;
+            position: relative;
+            z-index: 1;
         }
         .card:hover {
             transform: scale(1.01);
@@ -121,11 +179,11 @@
 
         .avatar-wrap {
             position: relative;
-            margin-top: -60px;
+            margin-top: -50px;
             padding: 0 24px;
             display: flex;
-            align-items: flex-start;
-            gap: 16px;
+            flex-direction: column;
+            align-items: center;
             margin-bottom: 12px;
         }
         .avatar {
@@ -198,15 +256,8 @@
 
         .user-info {
             padding-top: 8px;
-            flex: 1;
-            min-width: 0;
-        }
-        .user-info h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -0.5px;
-            margin: 0;
+            text-align: center;
+            width: 100%;
         }
         .user-info .badge {
             display: inline-block;
@@ -224,6 +275,7 @@
             color: #aaa;
             font-size: 0.9rem;
             margin-top: 2px;
+            display: block;
         }
 
         .status-block {
@@ -278,7 +330,6 @@
             white-space: normal;
         }
 
-        /* ===== Activity blocks chung ===== */
         .activity-block {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -465,9 +516,7 @@
 
         @media (max-width: 480px) {
             .avatar-wrap {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
+                margin-top: -40px;
             }
             .avatar {
                 width: 80px;
@@ -484,9 +533,6 @@
                 width: 14px;
                 height: 14px;
             }
-            .user-info {
-                text-align: center;
-            }
             .social-btn {
                 flex: 1 0 100%;
             }
@@ -500,11 +546,32 @@
             .activity-block .sub {
                 white-space: normal;
             }
+            .datetime-widget {
+                top: 16px;
+                left: 16px;
+            }
+            .datetime-widget .time {
+                font-size: 2.4rem;
+            }
+            .datetime-widget .date {
+                font-size: 0.7rem;
+                letter-spacing: 1.2px;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- ===== ĐỒNG HỒ ===== -->
+    <div class="datetime-widget" id="datetimeWidget">
+        <div class="time" id="clock">22:17</div>
+        <div class="date" id="date">WED · JUL 15 · 2026</div>
+    </div>
+
+    <!-- ===== CANVAS TUYẾT ===== -->
+    <canvas id="snowCanvas"></canvas>
+
+    <!-- ===== OVERLAY ===== -->
     <div class="overlay" id="overlay">
         <div class="overlay-content">
             <i class="fas fa-mouse-pointer"></i>
@@ -513,19 +580,19 @@
         </div>
     </div>
 
+    <!-- ===== CARD BIO ===== -->
     <div class="card" id="bioCard">
         <div class="banner"></div>
 
         <div class="avatar-wrap">
             <div class="avatar" id="avatarContainer">
-                <img id="avatarImg" alt="Avatar" />
+                <img id="avatarImg" src="https://4kwallpapers.com/images/wallpapers/mita-miside-santa-1920x1080-21052.jpg" alt="Avatar" class="show" />
                 <div class="fallback-icon"><i class="fas fa-user-astronaut"></i></div>
                 <div class="status-ring"><div class="status-dot offline" id="statusDot"></div></div>
             </div>
             <div class="user-info">
-                <h1>Gokis</h1>
                 <span class="badge">👑 Gamer</span>
-                <div class="tag">@gokisreal • he/him</div>
+                <span class="tag">@gokigreal • he/him</span>
             </div>
         </div>
 
@@ -533,9 +600,8 @@
             <div class="status-container">
                 <div class="status-text offline" id="statusText">● Offline</div>
 
-                <!-- Spotify -->
                 <div class="activity-block spotify-block" id="spotifyBlock">
-                    <div class="header"><i class="fab fa-spotify"></i> Cùng lắng nghe Spotify 😍</div>
+                    <div class="header"><i class="fab fa-spotify"></i> Cùng lắng nghe Spotify</div>
                     <div class="title" id="spotifySong">Bài hát</div>
                     <div class="sub" id="spotifyArtist">Nghệ sĩ</div>
                     <div class="progress-wrap">
@@ -545,7 +611,6 @@
                     </div>
                 </div>
 
-                <!-- YouTube -->
                 <div class="activity-block youtube-block" id="youtubeBlock">
                     <div class="header"><i class="fab fa-youtube"></i> Đang xem YouTube</div>
                     <div class="title" id="youtubeTitle">Tiêu đề video</div>
@@ -557,7 +622,6 @@
                     </div>
                 </div>
 
-                <!-- Game -->
                 <div class="activity-block game-block" id="gameBlock">
                     <div class="header"><i class="fas fa-gamepad"></i> Đang chơi game</div>
                     <div class="title" id="gameTitle">Tên game</div>
@@ -594,11 +658,39 @@
         </div>
     </div>
 
+    <!-- ===== JAVASCRIPT ===== -->
     <script>
+        // ----- OVERLAY: ẩn và hiện đồng hồ -----
         document.getElementById('overlay').addEventListener('click', function() {
             this.classList.add('hidden');
+            document.getElementById('datetimeWidget').classList.add('show');
         });
 
+        // ----- ĐỒNG HỒ VN -----
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('vi-VN', {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            const dateObj = {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            };
+            let dateStr = now.toLocaleDateString('en-US', dateObj);
+            dateStr = dateStr.replace(/,/g, ' ·').toUpperCase();
+            document.getElementById('clock').textContent = timeStr;
+            document.getElementById('date').textContent = dateStr;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // ----- DISCORD STATUS -----
         const DISCORD_USER_ID = '963028835480248390';
         const API_URL = `https://api.lanyard.rest/v1/users/${DISCORD_USER_ID}`;
 
@@ -606,7 +698,6 @@
         const statusText = document.getElementById('statusText');
         const avatarImg = document.getElementById('avatarImg');
 
-        // Spotify elements
         const spotifyBlock = document.getElementById('spotifyBlock');
         const spotifySong = document.getElementById('spotifySong');
         const spotifyArtist = document.getElementById('spotifyArtist');
@@ -614,7 +705,6 @@
         const spotifyDuration = document.getElementById('spotifyDuration');
         const spotifyProgress = document.getElementById('spotifyProgress');
 
-        // YouTube elements
         const youtubeBlock = document.getElementById('youtubeBlock');
         const youtubeTitle = document.getElementById('youtubeTitle');
         const youtubeChannel = document.getElementById('youtubeChannel');
@@ -622,7 +712,6 @@
         const youtubeDuration = document.getElementById('youtubeDuration');
         const youtubeProgress = document.getElementById('youtubeProgress');
 
-        // Game elements
         const gameBlock = document.getElementById('gameBlock');
         const gameTitle = document.getElementById('gameTitle');
         const gameDetail = document.getElementById('gameDetail');
@@ -633,8 +722,7 @@
         let spotifyInterval = null;
         let youtubeInterval = null;
         let gameInterval = null;
-        let currentActivity = null; // 'spotify', 'youtube', 'game'
-        let previousAvatarHash = null;
+        let currentSpotifyData = null;
 
         const statusMap = {
             online: { dot: 'online', text: '● Online' },
@@ -656,7 +744,7 @@
             return `${min}:${sec.toString().padStart(2, '0')}`;
         }
 
-        function updateProgress(blockData, currentEl, progressEl) {
+        function updateBlockProgress(blockData, currentEl, progressEl) {
             if (!blockData) return;
             const { start, end } = blockData;
             const now = Date.now();
@@ -668,96 +756,50 @@
             progressEl.style.width = `${progress * 100}%`;
         }
 
-        function stopAllIntervals() {
-            if (spotifyInterval) { clearInterval(spotifyInterval);
-                spotifyInterval = null; }
-            if (youtubeInterval) { clearInterval(youtubeInterval);
-                youtubeInterval = null; }
-            if (gameInterval) { clearInterval(gameInterval);
-                gameInterval = null; }
+        function showBlock(block, data, titleEl, subEl, currentEl, durationEl, progressEl, intervalVar) {
+            hideAllBlocks();
+            block.classList.add('active');
+            titleEl.textContent = data.title || 'Không có tiêu đề';
+            subEl.textContent = data.sub || '';
+            const start = data.start ? new Date(data.start).getTime() : null;
+            const end = data.end ? new Date(data.end).getTime() : null;
+            if (start && end && end > start) {
+                const blockData = { start, end };
+                if (block === spotifyBlock) currentSpotifyData = blockData;
+                const total = (end - start) / 1000;
+                durationEl.textContent = formatTime(total);
+                updateBlockProgress(blockData, currentEl, progressEl);
+                if (intervalVar) clearInterval(intervalVar);
+                return setInterval(() => {
+                    updateBlockProgress(blockData, currentEl, progressEl);
+                }, 1000);
+            } else {
+                durationEl.textContent = '0:00';
+                currentEl.textContent = '0:00';
+                progressEl.style.width = '0%';
+                if (block === spotifyBlock) currentSpotifyData = null;
+                if (intervalVar) clearInterval(intervalVar);
+                return null;
+            }
         }
 
         function hideAllBlocks() {
             spotifyBlock.classList.remove('active');
             youtubeBlock.classList.remove('active');
             gameBlock.classList.remove('active');
+            if (spotifyInterval) { clearInterval(spotifyInterval);
+                spotifyInterval = null; }
+            if (youtubeInterval) { clearInterval(youtubeInterval);
+                youtubeInterval = null; }
+            if (gameInterval) { clearInterval(gameInterval);
+                gameInterval = null; }
+            currentSpotifyData = null;
             statusText.style.display = 'inline-block';
-            currentActivity = null;
-        }
-
-        function showActivity(type, data) {
-            hideAllBlocks();
-            stopAllIntervals();
-            currentActivity = type;
-
-            if (type === 'spotify') {
-                spotifyBlock.classList.add('active');
-                spotifySong.textContent = data.song || 'Bài hát';
-                spotifyArtist.textContent = data.artist || 'Nghệ sĩ';
-                const start = data.start || null;
-                const end = data.end || null;
-                if (start && end) {
-                    const blockData = { start, end };
-                    const total = (end - start) / 1000;
-                    spotifyDuration.textContent = formatTime(total);
-                    updateProgress(blockData, spotifyCurrent, spotifyProgress);
-                    spotifyInterval = setInterval(() => {
-                        updateProgress(blockData, spotifyCurrent, spotifyProgress);
-                    }, 1000);
-                } else {
-                    spotifyDuration.textContent = '0:00';
-                    spotifyCurrent.textContent = '0:00';
-                    spotifyProgress.style.width = '0%';
-                }
-                statusText.style.display = 'none';
-            } else if (type === 'youtube') {
-                youtubeBlock.classList.add('active');
-                youtubeTitle.textContent = data.title || 'Tiêu đề video';
-                youtubeChannel.textContent = data.channel || '';
-                const start = data.start || null;
-                const end = data.end || null;
-                if (start && end) {
-                    const blockData = { start, end };
-                    const total = (end - start) / 1000;
-                    youtubeDuration.textContent = formatTime(total);
-                    updateProgress(blockData, youtubeCurrent, youtubeProgress);
-                    youtubeInterval = setInterval(() => {
-                        updateProgress(blockData, youtubeCurrent, youtubeProgress);
-                    }, 1000);
-                } else {
-                    youtubeDuration.textContent = '0:00';
-                    youtubeCurrent.textContent = '0:00';
-                    youtubeProgress.style.width = '0%';
-                }
-                statusText.style.display = 'none';
-            } else if (type === 'game') {
-                gameBlock.classList.add('active');
-                gameTitle.textContent = data.title || 'Tên game';
-                gameDetail.textContent = data.detail || '';
-                const start = data.start || null;
-                const end = data.end || null;
-                if (start && end) {
-                    const blockData = { start, end };
-                    const total = (end - start) / 1000;
-                    gameDuration.textContent = formatTime(total);
-                    updateProgress(blockData, gameCurrent, gameProgress);
-                    gameInterval = setInterval(() => {
-                        updateProgress(blockData, gameCurrent, gameProgress);
-                    }, 1000);
-                } else {
-                    gameDuration.textContent = '0:00';
-                    gameCurrent.textContent = '0:00';
-                    gameProgress.style.width = '0%';
-                }
-                statusText.style.display = 'none';
-            }
         }
 
         async function fetchDiscordStatus() {
             statusText.textContent = '⏳ Đang tải...';
             statusText.className = 'status-text offline';
-            hideAllBlocks();
-            stopAllIntervals();
 
             try {
                 const res = await fetch(API_URL);
@@ -766,82 +808,74 @@
 
                 if (json.success && json.data) {
                     const data = json.data;
-
-                    // Avatar
-                    const currentAvatarHash = data.avatar || null;
-                    if (currentAvatarHash !== previousAvatarHash) {
-                        previousAvatarHash = currentAvatarHash;
-                        if (currentAvatarHash) {
-                            const avatarUrl = `https://cdn.discordapp.com/avatars/${DISCORD_USER_ID}/${currentAvatarHash}.png?size=128&t=${Date.now()}`;
-                            avatarImg.src = avatarUrl;
-                            avatarImg.className = 'show';
-                        } else {
-                            avatarImg.className = '';
-                        }
-                    }
-
+                    // Giữ avatar tĩnh, không cập nhật từ Discord
                     const defaultStatusText = updateStatus(data.discord_status);
+                    let found = false;
 
-                    // ---- XỬ LÝ ACTIVITY: Ưu tiên Spotify > YouTube > Game ----
-                    let activityShown = false;
-
-                    // 1. Spotify
                     if (data.spotify && data.spotify.song) {
                         const sp = data.spotify;
                         const start = sp.timestamps?.start ? new Date(sp.timestamps.start).getTime() : null;
                         const end = sp.timestamps?.end ? new Date(sp.timestamps.end).getTime() : null;
-                        showActivity('spotify', {
-                            song: sp.song,
-                            artist: sp.artist,
-                            start: start,
-                            end: end
-                        });
-                        activityShown = true;
+                        spotifyInterval = showBlock(
+                            spotifyBlock,
+                            { title: sp.song, sub: sp.artist, start, end },
+                            spotifySong, spotifyArtist,
+                            spotifyCurrent, spotifyDuration, spotifyProgress,
+                            spotifyInterval
+                        );
+                        statusText.style.display = 'none';
+                        found = true;
                     } else {
-                        // 2. YouTube (tìm trong activities)
-                        let youtubeAct = null;
-                        let gameAct = null;
                         if (data.activities && data.activities.length > 0) {
+                            let youtubeActivity = null;
+                            let gameActivity = null;
                             for (const act of data.activities) {
-                                if (act.type === 4) continue; // bỏ custom status
+                                if (act.type === 4) continue;
                                 if (act.name && act.name.toLowerCase().includes('youtube')) {
-                                    youtubeAct = act;
+                                    youtubeActivity = act;
                                     break;
-                                }
-                                if (!gameAct && act.name) {
-                                    gameAct = act;
+                                } else if (!gameActivity && act.name && act.type !== 4) {
+                                    gameActivity = act;
                                 }
                             }
-                        }
 
-                        if (youtubeAct) {
-                            const start = youtubeAct.timestamps?.start ? new Date(youtubeAct.timestamps.start).getTime() : null;
-                            const end = youtubeAct.timestamps?.end ? new Date(youtubeAct.timestamps.end).getTime() : null;
-                            showActivity('youtube', {
-                                title: youtubeAct.details || youtubeAct.name,
-                                channel: youtubeAct.state || '',
-                                start: start,
-                                end: end
-                            });
-                            activityShown = true;
-                        } else if (gameAct) {
-                            const start = gameAct.timestamps?.start ? new Date(gameAct.timestamps.start).getTime() : null;
-                            const end = gameAct.timestamps?.end ? new Date(gameAct.timestamps.end).getTime() : null;
-                            const detail = gameAct.details || '';
-                            const state = gameAct.state || '';
-                            const sub = detail + (state ? ` • ${state}` : '');
-                            showActivity('game', {
-                                title: gameAct.name,
-                                detail: sub,
-                                start: start,
-                                end: end
-                            });
-                            activityShown = true;
+                            if (youtubeActivity) {
+                                const start = youtubeActivity.timestamps?.start ? new Date(youtubeActivity.timestamps.start)
+                                    .getTime() : null;
+                                const end = youtubeActivity.timestamps?.end ? new Date(youtubeActivity.timestamps.end)
+                                    .getTime() : null;
+                                youtubeInterval = showBlock(
+                                    youtubeBlock,
+                                    { title: youtubeActivity.details || youtubeActivity.name, sub: youtubeActivity
+                                            .state || '', start, end },
+                                    youtubeTitle, youtubeChannel,
+                                    youtubeCurrent, youtubeDuration, youtubeProgress,
+                                    youtubeInterval
+                                );
+                                statusText.style.display = 'none';
+                                found = true;
+                            } else if (gameActivity) {
+                                const start = gameActivity.timestamps?.start ? new Date(gameActivity.timestamps.start)
+                                    .getTime() : null;
+                                const end = gameActivity.timestamps?.end ? new Date(gameActivity.timestamps.end)
+                                    .getTime() : null;
+                                const detail = gameActivity.details || '';
+                                const state = gameActivity.state || '';
+                                const sub = detail + (state ? ` • ${state}` : '');
+                                gameInterval = showBlock(
+                                    gameBlock,
+                                    { title: gameActivity.name, sub: sub, start, end },
+                                    gameTitle, gameDetail,
+                                    gameCurrent, gameDuration, gameProgress,
+                                    gameInterval
+                                );
+                                statusText.style.display = 'none';
+                                found = true;
+                            }
                         }
                     }
 
-                    // Nếu không có hoạt động nào, hiển thị status thường
-                    if (!activityShown) {
+                    if (!found) {
                         hideAllBlocks();
                         statusText.textContent = defaultStatusText;
                         const dotType = data.discord_status || 'offline';
@@ -855,7 +889,6 @@
                     statusText.textContent = fallback.text;
                     statusText.className = 'status-text offline';
                     hideAllBlocks();
-                    stopAllIntervals();
                 }
             } catch (e) {
                 console.error('⚠️ Lỗi fetch Discord:', e);
@@ -864,12 +897,71 @@
                 statusText.textContent = fallback.text;
                 statusText.className = 'status-text offline';
                 hideAllBlocks();
-                stopAllIntervals();
             }
         }
 
         fetchDiscordStatus();
         setInterval(fetchDiscordStatus, 60000);
+
+        // ===== HIỆU ỨNG TUYẾT =====
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let snowflakes = [];
+        const MAX_SNOWFLAKES = 120;
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Snowflake {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height - height;
+                this.radius = Math.random() * 3 + 2;
+                this.speed = Math.random() * 1 + 0.5;
+                this.wind = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.6 + 0.4;
+            }
+            update() {
+                this.y += this.speed;
+                this.x += this.wind + Math.sin(this.y * 0.01) * 0.3;
+                if (this.y > height + 10) {
+                    this.reset();
+                    this.y = -10;
+                }
+                if (this.x < -10) this.x = width + 10;
+                if (this.x > width + 10) this.x = -10;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < MAX_SNOWFLAKES; i++) {
+            const flake = new Snowflake();
+            flake.y = Math.random() * height;
+            snowflakes.push(flake);
+        }
+
+        function animateSnow() {
+            ctx.clearRect(0, 0, width, height);
+            for (const flake of snowflakes) {
+                flake.update();
+                flake.draw();
+            }
+            requestAnimationFrame(animateSnow);
+        }
+        animateSnow();
     </script>
 </body>
 </html>
