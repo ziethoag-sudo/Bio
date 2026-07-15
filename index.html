@@ -12,7 +12,17 @@
             box-sizing: border-box;
         }
 
-        /* ===== CURSOR TUYẾT ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #5865f2, #8b5cf6);
+            border-radius: 8px;
+        }
+
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
             background: #0b0b0b;
@@ -23,9 +33,125 @@
             padding: 20px;
             position: relative;
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text y="28" font-size="28" fill="white" font-family="Arial">❄</text></svg>') 16 16, auto;
+            transition: background 0.5s ease;
         }
 
-        /* ===== CANVAS TUYẾT ===== */
+        body.light-mode {
+            background: #f0f2f5;
+        }
+        body.light-mode .card {
+            background: #ffffff;
+            border-color: #ddd;
+        }
+        body.light-mode .banner {
+            border-bottom-color: #ddd;
+        }
+        body.light-mode .bio {
+            background: #f5f5f5;
+            color: #333;
+            border-left-color: #5865f2;
+        }
+        body.light-mode .user-info .tag {
+            color: #555;
+        }
+        body.light-mode .status-text {
+            color: #333;
+        }
+        body.light-mode .status-text.online {
+            color: #3ba55d;
+        }
+        body.light-mode .status-text.idle {
+            color: #faa81a;
+        }
+        body.light-mode .status-text.dnd {
+            color: #ed4245;
+        }
+        body.light-mode .status-text.offline {
+            color: #747f8d;
+        }
+        body.light-mode .activity-block {
+            background: rgba(0, 0, 0, 0.04);
+            border-color: #ddd;
+        }
+        body.light-mode .activity-block .title {
+            color: #222;
+        }
+        body.light-mode .activity-block .sub {
+            color: #555;
+        }
+        body.light-mode .social-btn {
+            border-color: #ccc;
+            color: #333;
+        }
+        body.light-mode .social-btn i {
+            color: #333;
+        }
+        body.light-mode .social-btn.discord i,
+        body.light-mode .social-btn.discord {
+            color: #5865f2;
+            border-color: #5865f2;
+        }
+        body.light-mode .social-btn.steam i,
+        body.light-mode .social-btn.steam {
+            color: #66c0f4;
+            border-color: #66c0f4;
+        }
+        body.light-mode .social-btn.lastfm i,
+        body.light-mode .social-btn.lastfm {
+            color: #d51007;
+            border-color: #d51007;
+        }
+        body.light-mode .social-btn.spotify i,
+        body.light-mode .social-btn.spotify {
+            color: #1db954;
+            border-color: #1db954;
+        }
+        body.light-mode .footer-note {
+            color: #888;
+            border-top-color: #ddd;
+        }
+        body.light-mode .datetime-widget .time {
+            color: #222;
+            text-shadow: none;
+        }
+        body.light-mode .datetime-widget .date {
+            color: #555;
+            border-top-color: rgba(0, 0, 0, 0.15);
+        }
+        body.light-mode .overlay {
+            background: #f0f2f5;
+        }
+        body.light-mode .overlay-content h1 {
+            background: none;
+            -webkit-text-fill-color: #5865f2;
+            color: #5865f2;
+        }
+        body.light-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #ccc;
+            color: #333;
+        }
+        body.light-mode .theme-toggle:hover {
+            background: #5865f2;
+            color: #fff;
+        }
+        body.light-mode .ambient-toggle {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #ccc;
+            color: #333;
+        }
+        body.light-mode .ambient-toggle:hover {
+            background: #5865f2;
+            color: #fff;
+        }
+        body.light-mode .weather-widget {
+            border-color: #ccc;
+            background: rgba(0, 0, 0, 0.04);
+        }
+        body.light-mode .weather-widget .temp {
+            color: #222;
+        }
+
         #snowCanvas {
             position: fixed;
             top: 0;
@@ -36,7 +162,31 @@
             z-index: 0;
         }
 
-        /* ===== ĐỒNG HỒ ===== */
+        .theme-toggle {
+            position: fixed;
+            top: 32px;
+            right: 32px;
+            z-index: 1001;
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid #333;
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            background: #5865f2;
+        }
+
         .datetime-widget {
             position: fixed;
             top: 32px;
@@ -158,7 +308,7 @@
             border-radius: 24px;
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, background 0.5s ease, border-color 0.5s ease;
             border: 2px solid #1a1a1a;
             position: relative;
             z-index: 1;
@@ -167,20 +317,57 @@
             transform: scale(1.01);
         }
 
+        /* ===== BANNER SLIDESHOW ===== */
         .banner {
             height: 160px;
-            background-image: url('https://4kwallpapers.com/images/wallpapers/lumine-intertwined-1920x1080-26732.jpg');
-            background-size: cover;
-            background-position: center;
             position: relative;
+            overflow: hidden;
             border-bottom: 3px solid #2a2a2a;
             box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
         }
+        .banner .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            z-index: 0;
+        }
+        .banner .slide.active {
+            opacity: 1;
+            z-index: 1;
+        }
+        .banner .dot-container {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+        .banner .dot-container .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .banner .dot-container .dot.active {
+            background: #fff;
+        }
 
+        /* ===== AVATAR - ĐÃ SỬA LỖI TRÀN BANNER ===== */
         .avatar-wrap {
             position: relative;
-            margin-top: -50px;
+            margin-top: -30px; /* tăng từ -50px lên -30px để hạ avatar xuống */
             padding: 0 24px;
+            padding-top: 6px; /* thêm padding trên để tạo khoảng cách an toàn */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -201,6 +388,7 @@
             overflow: hidden;
             flex-shrink: 0;
             position: relative;
+            transition: all 0.4s ease;
         }
         .avatar img {
             width: 100%;
@@ -220,6 +408,10 @@
         }
         .avatar img.show + .fallback-icon {
             display: none;
+        }
+        .avatar:hover {
+            transform: rotate(-4deg) scale(1.02);
+            box-shadow: 0 0 30px rgba(88, 101, 242, 0.6);
         }
 
         .status-ring {
@@ -278,6 +470,7 @@
             display: block;
         }
 
+        /* ===== STATUS BLOCK ===== */
         .status-block {
             padding: 0 24px;
             margin-bottom: 16px;
@@ -285,12 +478,10 @@
             flex-direction: column;
             gap: 8px;
         }
-
         .status-container {
             min-height: 30px;
             width: 100%;
         }
-
         .status-text {
             display: inline-block;
             font-size: 0.8rem;
@@ -395,21 +586,18 @@
             border-radius: 4px;
             transition: width 0.1s linear;
         }
-
         .spotify-block .header {
             color: #1db954;
         }
         .spotify-block .progress-fill {
             background: #1db954;
         }
-
         .youtube-block .header {
             color: #ff0000;
         }
         .youtube-block .progress-fill {
             background: #ff0000;
         }
-
         .game-block .header {
             color: #8b5cf6;
         }
@@ -417,9 +605,6 @@
             background: #8b5cf6;
         }
 
-        .content {
-            padding: 0 24px 30px;
-        }
         .bio {
             color: #ccc;
             font-size: 1rem;
@@ -429,6 +614,25 @@
             background: #141414;
             border-radius: 12px;
             border-left: 3px solid #5865f2;
+            min-height: 50px;
+        }
+        .bio .typewriter-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2rem;
+            background: #5865f2;
+            margin-left: 2px;
+            vertical-align: text-bottom;
+            animation: blink 0.8s step-end infinite;
+        }
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
         }
 
         .social-grid {
@@ -505,6 +709,36 @@
             flex: 1 0 100%;
         }
 
+        .share-grid {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .share-btn {
+            background: transparent;
+            border: 1px solid #444;
+            color: #aaa;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .share-btn:hover {
+            border-color: #888;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .share-btn i {
+            font-size: 1rem;
+        }
+
         .footer-note {
             margin-top: 24px;
             text-align: center;
@@ -513,10 +747,84 @@
             border-top: 1px solid #2a2a2a;
             padding-top: 18px;
         }
+        .footer-note .view-count {
+            color: #888;
+            font-weight: 500;
+        }
+
+        .weather-widget {
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 0.85rem;
+            color: #aaa;
+            border: 1px solid #2a2a2a;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .weather-widget i {
+            font-size: 1.2rem;
+            color: #faa81a;
+        }
+        .weather-widget .temp {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .special-day {
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: #888;
+            text-align: center;
+        }
+        .special-day span {
+            color: #faa81a;
+            font-weight: 600;
+        }
+
+        /* ===== AMBIENT MUSIC TOGGLE ===== */
+        .ambient-toggle {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 2000;
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid #333;
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        .ambient-toggle.show {
+            display: flex;
+        }
+        .ambient-toggle:hover {
+            transform: scale(1.05);
+            background: #5865f2;
+        }
+        .ambient-toggle.playing {
+            border-color: #1db954;
+            color: #1db954;
+        }
 
         @media (max-width: 480px) {
             .avatar-wrap {
-                margin-top: -40px;
+                margin-top: -20px;
+                padding-top: 4px;
             }
             .avatar {
                 width: 80px;
@@ -557,21 +865,44 @@
                 font-size: 0.7rem;
                 letter-spacing: 1.2px;
             }
+            .theme-toggle {
+                top: 16px;
+                right: 16px;
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+            .ambient-toggle {
+                bottom: 16px;
+                left: 16px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
+            .weather-widget {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== ĐỒNG HỒ ===== -->
+    <button class="theme-toggle" id="themeToggle" title="Chuyển chế độ sáng/tối">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <button class="ambient-toggle" id="ambientToggle" title="Bật/tắt nhạc nền">
+        <i class="fas fa-headphones"></i>
+    </button>
+
     <div class="datetime-widget" id="datetimeWidget">
         <div class="time" id="clock">22:17</div>
         <div class="date" id="date">WED · JUL 15 · 2026</div>
     </div>
 
-    <!-- ===== CANVAS TUYẾT ===== -->
     <canvas id="snowCanvas"></canvas>
 
-    <!-- ===== OVERLAY ===== -->
     <div class="overlay" id="overlay">
         <div class="overlay-content">
             <i class="fas fa-mouse-pointer"></i>
@@ -580,9 +911,13 @@
         </div>
     </div>
 
-    <!-- ===== CARD BIO ===== -->
     <div class="card" id="bioCard">
-        <div class="banner"></div>
+        <div class="banner" id="banner">
+            <div class="slide active" style="background-image: url('https://4kwallpapers.com/images/wallpapers/lumine-intertwined-1920x1080-26732.jpg');"></div>
+            <div class="slide" style="background-image: url('https://4kwallpapers.com/images/wallpapers/mita-miside-santa-1920x1080-21052.jpg');"></div>
+            <div class="slide" style="background-image: url('https://4kwallpapers.com/images/wallpapers/snowy-mountain-winter-3840x2160-11110.jpg');"></div>
+            <div class="dot-container" id="dotContainer"></div>
+        </div>
 
         <div class="avatar-wrap">
             <div class="avatar" id="avatarContainer">
@@ -592,7 +927,7 @@
             </div>
             <div class="user-info">
                 <span class="badge">👑 Gamer</span>
-                <span class="tag">@gokigreal • he/him</span>
+                <span class="tag">@aokiareal • he/him</span>
             </div>
         </div>
 
@@ -633,13 +968,24 @@
                     </div>
                 </div>
             </div>
+
+            <div class="weather-widget" id="weatherWidget">
+                <i class="fas fa-cloud-sun"></i>
+                <span id="weatherTemp">--°C</span>
+                <span id="weatherDesc">Đang tải...</span>
+            </div>
+
+            <div class="special-day" id="specialDay">
+                🐱 Đã yêu mèo được <span id="dayCount">0</span> ngày
+            </div>
         </div>
 
         <div class="content">
-            <div class="bio">
+            <div class="bio" id="bioText">
                 <i class="fas fa-quote-left" style="color:#5865f2; margin-right:6px;"></i>
-                Fav Chuggi and Love my cat
+                <span id="typewriterText"></span><span class="typewriter-cursor"></span>
             </div>
+
             <div class="social-grid">
                 <a href="https://discord.gg/tY4t2SSRe" target="_blank" class="social-btn discord">
                     <i class="fab fa-discord"></i> Discord
@@ -654,19 +1000,39 @@
                     <i class="fab fa-spotify"></i> Spotify Playlist
                 </a>
             </div>
-            <div class="footer-note">✦ make by Gok ✦</div>
+
+            <div class="share-grid">
+                <button class="share-btn" data-share="facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
+                <button class="share-btn" data-share="twitter"><i class="fab fa-twitter"></i> Twitter</button>
+                <button class="share-btn" data-share="discord"><i class="fab fa-discord"></i> Discord</button>
+            </div>
+
+            <div class="footer-note">
+                ✦ make by Gok ✦
+                <br />
+                <span class="view-count">✨ Lượt xem: <span id="viewCount">0</span> ✨</span>
+            </div>
         </div>
     </div>
 
-    <!-- ===== JAVASCRIPT ===== -->
+    <audio id="ambientAudio" loop>
+        <!-- Chưa có link nhạc, bạn cần thay bằng link file nhạc thực tế -->
+        <source src="" type="audio/mpeg" />
+    </audio>
+
     <script>
-        // ----- OVERLAY: ẩn và hiện đồng hồ -----
+        // ----- OVERLAY -----
         document.getElementById('overlay').addEventListener('click', function() {
             this.classList.add('hidden');
             document.getElementById('datetimeWidget').classList.add('show');
+            document.getElementById('ambientToggle').classList.add('show');
+            startTypewriter();
+            updateViewCount();
+            fetchWeather();
+            calculateSpecialDay();
         });
 
-        // ----- ĐỒNG HỒ VN -----
+        // ----- ĐỒNG HỒ -----
         function updateClock() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('vi-VN', {
@@ -690,7 +1056,156 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // ----- DISCORD STATUS -----
+        // ----- CHẾ ĐỘ SÁNG/TỐI -----
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const icon = themeToggle.querySelector('i');
+            icon.className = document.body.classList.contains('light-mode') ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // ----- NHẠC AMBIENT (tạm thời chưa có link) -----
+        const ambientToggle = document.getElementById('ambientToggle');
+        const ambientAudio = document.getElementById('ambientAudio');
+        let isAmbientPlaying = false;
+
+        ambientToggle.addEventListener('click', () => {
+            if (!ambientAudio.src) {
+                alert('Chưa có link nhạc! Vui lòng cung cấp link file nhạc (MP3, WAV, OGG).');
+                return;
+            }
+            if (isAmbientPlaying) {
+                ambientAudio.pause();
+                ambientToggle.classList.remove('playing');
+                ambientToggle.querySelector('i').className = 'fas fa-headphones';
+                isAmbientPlaying = false;
+            } else {
+                ambientAudio.play().catch(() => {});
+                ambientToggle.classList.add('playing');
+                ambientToggle.querySelector('i').className = 'fas fa-volume-up';
+                isAmbientPlaying = true;
+            }
+        });
+
+        // ----- BANNER SLIDESHOW -----
+        const slides = document.querySelectorAll('.banner .slide');
+        const dotContainer = document.getElementById('dotContainer');
+        let currentSlide = 0;
+        let slideInterval;
+
+        slides.forEach((_, idx) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (idx === 0 ? ' active' : '');
+            dot.dataset.index = idx;
+            dot.addEventListener('click', () => goToSlide(idx));
+            dotContainer.appendChild(dot);
+        });
+
+        function goToSlide(idx) {
+            slides.forEach((s, i) => {
+                s.classList.toggle('active', i === idx);
+            });
+            document.querySelectorAll('.dot').forEach((d, i) => {
+                d.classList.toggle('active', i === idx);
+            });
+            currentSlide = idx;
+            resetSlideInterval();
+        }
+
+        function nextSlide() {
+            goToSlide((currentSlide + 1) % slides.length);
+        }
+
+        function resetSlideInterval() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+        resetSlideInterval();
+
+        // ----- TYPEWRITER -----
+        const typewriterTarget = document.getElementById('typewriterText');
+        const bioText = 'Fav Chuggi and Love my cat';
+        let typewriterIndex = 0;
+        let typewriterDone = false;
+
+        function startTypewriter() {
+            if (typewriterDone) return;
+            typewriterIndex = 0;
+            typewriterTarget.textContent = '';
+            typeWriterStep();
+        }
+
+        function typeWriterStep() {
+            if (typewriterIndex < bioText.length) {
+                typewriterTarget.textContent += bioText.charAt(typewriterIndex);
+                typewriterIndex++;
+                setTimeout(typeWriterStep, 60);
+            } else {
+                typewriterDone = true;
+                document.querySelector('.typewriter-cursor').style.display = 'none';
+            }
+        }
+
+        // ----- LƯỢT XEM -----
+        function updateViewCount() {
+            let count = parseInt(localStorage.getItem('bioViewCount')) || 0;
+            count++;
+            localStorage.setItem('bioViewCount', count);
+            document.getElementById('viewCount').textContent = count.toLocaleString();
+        }
+
+        // ----- THỜI TIẾT -----
+        async function fetchWeather() {
+            try {
+                const res = await fetch('https://wttr.in/Hanoi?format=j1');
+                if (!res.ok) throw new Error('Weather API error');
+                const data = await res.json();
+                const current = data.current_condition[0];
+                const temp = current.temp_C;
+                const desc = current.weatherDesc[0].value;
+                document.getElementById('weatherTemp').textContent = `${temp}°C`;
+                document.getElementById('weatherDesc').textContent = desc;
+                const icon = document.querySelector('.weather-widget i');
+                const d = desc.toLowerCase();
+                if (d.includes('sun')) icon.className = 'fas fa-sun';
+                else if (d.includes('rain')) icon.className = 'fas fa-cloud-rain';
+                else if (d.includes('cloud')) icon.className = 'fas fa-cloud';
+                else if (d.includes('snow')) icon.className = 'fas fa-snowflake';
+                else icon.className = 'fas fa-cloud-sun';
+            } catch (e) {
+                document.getElementById('weatherTemp').textContent = '--°C';
+                document.getElementById('weatherDesc').textContent = 'Không có dữ liệu';
+            }
+        }
+
+        // ----- NGÀY ĐẶC BIỆT -----
+        function calculateSpecialDay() {
+            const start = new Date(2023, 0, 1);
+            const now = new Date();
+            const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+            document.getElementById('dayCount').textContent = diff > 0 ? diff : 0;
+        }
+
+        // ----- SHARE -----
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.dataset.share;
+                const url = encodeURIComponent(window.location.href);
+                if (type === 'facebook') {
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+                } else if (type === 'twitter') {
+                    window.open(`https://twitter.com/intent/tweet?url=${url}`, '_blank');
+                } else if (type === 'discord') {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        alert('Đã sao chép link Bio!');
+                    }).catch(() => {
+                        prompt('Sao chép link:', window.location.href);
+                    });
+                }
+            });
+        });
+
+        // ===== DISCORD STATUS =====
         const DISCORD_USER_ID = '963028835480248390';
         const API_URL = `https://api.lanyard.rest/v1/users/${DISCORD_USER_ID}`;
 
@@ -808,7 +1323,6 @@
 
                 if (json.success && json.data) {
                     const data = json.data;
-                    // Giữ avatar tĩnh, không cập nhật từ Discord
                     const defaultStatusText = updateStatus(data.discord_status);
                     let found = false;
 
@@ -903,7 +1417,7 @@
         fetchDiscordStatus();
         setInterval(fetchDiscordStatus, 60000);
 
-        // ===== HIỆU ỨNG TUYẾT =====
+        // ===== TUYẾT =====
         const canvas = document.getElementById('snowCanvas');
         const ctx = canvas.getContext('2d');
         let width, height;
