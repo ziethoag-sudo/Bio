@@ -362,12 +362,12 @@
             background: #fff;
         }
 
-        /* ===== AVATAR - ĐÃ SỬA LỖI TRÀN BANNER ===== */
+        /* ===== AVATAR - KHOẢNG CÁCH RIÊNG ===== */
         .avatar-wrap {
             position: relative;
-            margin-top: -30px; /* tăng từ -50px lên -30px để hạ avatar xuống */
+            margin-top: -20px; /* Giảm từ -30px xuống -20px để avatar cách banner một khoảng rõ ràng */
             padding: 0 24px;
-            padding-top: 6px; /* thêm padding trên để tạo khoảng cách an toàn */
+            padding-top: 12px; /* Tăng padding-top để tạo khoảng cách đẹp */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -709,36 +709,6 @@
             flex: 1 0 100%;
         }
 
-        .share-grid {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .share-btn {
-            background: transparent;
-            border: 1px solid #444;
-            color: #aaa;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-        }
-        .share-btn:hover {
-            border-color: #888;
-            color: #fff;
-            transform: translateY(-2px);
-        }
-        .share-btn i {
-            font-size: 1rem;
-        }
-
         .footer-note {
             margin-top: 24px;
             text-align: center;
@@ -823,8 +793,8 @@
 
         @media (max-width: 480px) {
             .avatar-wrap {
-                margin-top: -20px;
-                padding-top: 4px;
+                margin-top: -16px;
+                padding-top: 8px;
             }
             .avatar {
                 width: 80px;
@@ -1001,12 +971,6 @@
                 </a>
             </div>
 
-            <div class="share-grid">
-                <button class="share-btn" data-share="facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
-                <button class="share-btn" data-share="twitter"><i class="fab fa-twitter"></i> Twitter</button>
-                <button class="share-btn" data-share="discord"><i class="fab fa-discord"></i> Discord</button>
-            </div>
-
             <div class="footer-note">
                 ✦ make by Gok ✦
                 <br />
@@ -1016,7 +980,6 @@
     </div>
 
     <audio id="ambientAudio" loop>
-        <!-- Chưa có link nhạc, bạn cần thay bằng link file nhạc thực tế -->
         <source src="" type="audio/mpeg" />
     </audio>
 
@@ -1185,25 +1148,6 @@
             const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
             document.getElementById('dayCount').textContent = diff > 0 ? diff : 0;
         }
-
-        // ----- SHARE -----
-        document.querySelectorAll('.share-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const type = btn.dataset.share;
-                const url = encodeURIComponent(window.location.href);
-                if (type === 'facebook') {
-                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
-                } else if (type === 'twitter') {
-                    window.open(`https://twitter.com/intent/tweet?url=${url}`, '_blank');
-                } else if (type === 'discord') {
-                    navigator.clipboard.writeText(window.location.href).then(() => {
-                        alert('Đã sao chép link Bio!');
-                    }).catch(() => {
-                        prompt('Sao chép link:', window.location.href);
-                    });
-                }
-            });
-        });
 
         // ===== DISCORD STATUS =====
         const DISCORD_USER_ID = '963028835480248390';
