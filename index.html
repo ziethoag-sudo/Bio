@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0b0b0b;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0b0b0b;
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        .overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .overlay-content {
+            text-align: center;
+            color: #fff;
+            animation: float 3s ease-in-out infinite;
+        }
+        .overlay-content i {
+            font-size: 4rem;
+            color: #5865f2;
+            margin-bottom: 20px;
+            display: block;
+        }
+        .overlay-content h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #5865f2, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .overlay-content .click-hint {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 28px;
+            border: 2px solid #5865f2;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #5865f2;
+            letter-spacing: 2px;
+            animation: pulse 2s ease-in-out infinite;
+            -webkit-text-fill-color: #5865f2;
+        }
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(0.95);
+            }
+        }
+
+        .card {
+            max-width: 500px;
+            width: 100%;
+            background: #1e1e1e;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            transition: transform 0.3s ease;
+            border: 2px solid #1a1a1a;
+        }
+        .card:hover {
+            transform: scale(1.01);
+        }
+
+        .banner {
+            height: 160px;
+            background-image: url('https://4kwallpapers.com/images/wallpapers/lumine-intertwined-1920x1080-26732.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border-bottom: 3px solid #2a2a2a;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .avatar-wrap {
+            position: relative;
+            margin-top: -60px;
+            padding: 0 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #1e1e1e;
+            background: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #5865f2;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .avatar img.show {
+            display: block;
+        }
+        .avatar .fallback-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        .avatar img.show + .fallback-icon {
+            display: none;
+        }
+
+        .status-ring {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1e1e1e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #1e1e1e;
+        }
+        .status-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+        .status-dot.online {
+            background: #3ba55d;
+        }
+        .status-dot.idle {
+            background: #faa81a;
+        }
+        .status-dot.dnd {
+            background: #ed4245;
+        }
+        .status-dot.offline {
+            background: #747f8d;
+        }
+
+        .user-info {
+            padding-top: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+        .user-info h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+        .user-info .badge {
+            display: inline-block;
+            background: #5865f2;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 30px;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .user-info .tag {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+
+        .status-block {
+            padding: 0 24px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .status-container {
+            min-height: 30px;
+            width: 100%;
+        }
+
+        .status-text {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            max-width: 100%;
+            word-break: break-word;
+            white-space: normal;
+        }
+        .status-text.online {
+            color: #3ba55d;
+        }
+        .status-text.idle {
+            color: #faa81a;
+        }
+        .status-text.dnd {
+            color: #ed4245;
+        }
+        .status-text.offline {
+            color: #747f8d;
+        }
+        .status-text.activity {
+            color: #a0d8ff;
+            text-transform: none;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            font-size: 0.85rem;
+            background: rgba(88, 101, 242, 0.1);
+            padding: 4px 14px;
+            display: inline-block;
+            max-width: 100%;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        /* ===== Activity blocks chung ===== */
+        .activity-block {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-top: 4px;
+            display: none;
+            width: 100%;
+        }
+        .activity-block.active {
+            display: block;
+        }
+        .activity-block .header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .activity-block .header i {
+            font-size: 0.9rem;
+        }
+        .activity-block .title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .activity-block .sub {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .activity-block .progress-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .activity-block .progress-wrap .time {
+            font-size: 0.7rem;
+            color: #888;
+            font-variant-numeric: tabular-nums;
+            min-width: 38px;
+        }
+        .activity-block .progress-wrap .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #333;
+            border-radius: 4px;
+            cursor: default;
+            position: relative;
+        }
+        .activity-block .progress-wrap .progress-bar .progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.1s linear;
+        }
+
+        .spotify-block .header {
+            color: #1db954;
+        }
+        .spotify-block .progress-fill {
+            background: #1db954;
+        }
+
+        .youtube-block .header {
+            color: #ff0000;
+        }
+        .youtube-block .progress-fill {
+            background: #ff0000;
+        }
+
+        .game-block .header {
+            color: #8b5cf6;
+        }
+        .game-block .progress-fill {
+            background: #8b5cf6;
+        }
+
+        .content {
+            padding: 0 24px 30px;
+        }
+        .bio {
+            color: #ccc;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 12px 0 20px;
+            padding: 12px 16px;
+            background: #141414;
+            border-radius: 12px;
+            border-left: 3px solid #5865f2;
+        }
+
+        .social-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .social-btn {
+            flex: 1 0 calc(50% - 10px);
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            color: #fff;
+            background: transparent !important;
+            border: 2px solid #444;
+            transition: all 0.25s ease;
+        }
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border-color: #888;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+        .social-btn i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        .social-btn.discord i,
+        .social-btn.discord {
+            color: #5865f2;
+            border-color: #5865f2;
+        }
+        .social-btn.discord:hover {
+            border-color: #8b9cf7;
+            background: rgba(88, 101, 242, 0.08) !important;
+        }
+        .social-btn.steam i,
+        .social-btn.steam {
+            color: #66c0f4;
+            border-color: #66c0f4;
+        }
+        .social-btn.steam:hover {
+            border-color: #8fd4ff;
+            background: rgba(102, 192, 244, 0.08) !important;
+        }
+        .social-btn.lastfm i,
+        .social-btn.lastfm {
+            color: #d51007;
+            border-color: #d51007;
+        }
+        .social-btn.lastfm:hover {
+            border-color: #ff3b2f;
+            background: rgba(213, 16, 7, 0.08) !important;
+        }
+        .social-btn.spotify i,
+        .social-btn.spotify {
+            color: #1db954;
+            border-color: #1db954;
+        }
+        .social-btn.spotify:hover {
+            border-color: #3ee07a;
+            background: rgba(29, 185, 84, 0.08) !important;
+        }
+        .social-btn.spotify-full {
+            flex: 1 0 100%;
+        }
+
+        .footer-note {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #555;
+            border-top: 1px solid #2a2a2a;
+            padding-top: 18px;
+        }
+
+        @media (max-width: 480px) {
+            .avatar-wrap {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+            .status-ring {
+                width: 24px;
+                height: 24px;
+                bottom: 1px;
+                right: 1px;
+            }
+            .status-dot {
+                width: 14px;
+                height: 14px;
+            }
+            .user-info {
+                text-align: center;
+            }
+            .social-btn {
+                flex: 1 0 100%;
+            }
+            .overlay-content h1 {
+                font-size: 2rem;
+            }
+            .banner {
+                height: 120px;
+            }
+            .activity-block .title,
+            .activity-block .sub {
+                white-space: normal;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="overlay">
+        <div class="overlay-content">
+            <i class="fas fa-mouse-pointer"></i>
+            <h1>click vào đi :3</h1>
+            <span class="click-hint">✦ click ✦</span>
+        </div>
+    </div>
+
+    <div class="card" id="bioCard">
+        <div class="banner"></div>
+
+        <div class="avatar-wrap">
+            <div class="avatar" id="avatarContainer">
+                <img id="avatarImg" alt="Avatar" />
+                <div class="fallback-icon"><i class="fas fa-user-astronaut"></i></div>
+                <div class="status-ring"><div class="status-dot offline" id="statusDot"></div></div>
+            </div>
+            <div class="user-info">
+                <h1>Gokis</h1>
+                <span class="badge">👑 Gamer</span>
+                <div class="tag">@gokisreal • he/him</div>
+            </div>
+        </div>
+
+        <div class="status-block">
+            <div class="status-container">
+                <div class="status-text offline" id="statusText">● Offline</div>
+
+                <!-- Spotify -->
+                <div class="activity-block spotify-block" id="spotifyBlock">
+                    <div class="header"><i class="fab fa-spotify"></i> Cùng lắng nghe Spotify 😍</div>
+                    <div class="title" id="spotifySong">Bài hát</div>
+                    <div class="sub" id="spotifyArtist">Nghệ sĩ</div>
+                    <div class="progress-wrap">
+                        <span class="time" id="spotifyCurrent">0:00</span>
+                        <div class="progress-bar"><div class="progress-fill" id="spotifyProgress"></div></div>
+                        <span class="time" id="spotifyDuration">0:00</span>
+                    </div>
+                </div>
+
+                <!-- YouTube -->
+                <div class="activity-block youtube-block" id="youtubeBlock">
+                    <div class="header"><i class="fab fa-youtube"></i> Đang xem YouTube</div>
+                    <div class="title" id="youtubeTitle">Tiêu đề video</div>
+                    <div class="sub" id="youtubeChannel">Kênh</div>
+                    <div class="progress-wrap">
+                        <span class="time" id="youtubeCurrent">0:00</span>
+                        <div class="progress-bar"><div class="progress-fill" id="youtubeProgress"></div></div>
+                        <span class="time" id="youtubeDuration">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Game -->
+                <div class="activity-block game-block" id="gameBlock">
+                    <div class="header"><i class="fas fa-gamepad"></i> Đang chơi game</div>
+                    <div class="title" id="gameTitle">Tên game</div>
+                    <div class="sub" id="gameDetail">Chi tiết</div>
+                    <div class="progress-wrap">
+                        <span class="time" id="gameCurrent">0:00</span>
+                        <div class="progress-bar"><div class="progress-fill" id="gameProgress"></div></div>
+                        <span class="time" id="gameDuration">0:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="bio">
+                <i class="fas fa-quote-left" style="color:#5865f2; margin-right:6px;"></i>
+                Fav Chuggi and Love my cat
+            </div>
+            <div class="social-grid">
+                <a href="https://discord.gg/tY4t2SSRe" target="_blank" class="social-btn discord">
+                    <i class="fab fa-discord"></i> Discord
+                </a>
+                <a href="https://steamcommunity.com/profiles/76561199205244634/" target="_blank" class="social-btn steam">
+                    <i class="fab fa-steam"></i> Steam
+                </a>
+                <a href="https://www.last.fm/user/Gokisreal" target="_blank" class="social-btn lastfm">
+                    <i class="fab fa-lastfm"></i> Last.fm
+                </a>
+                <a href="https://open.spotify.com/playlist/3qq5H5jE5G87PXK8T4pUvr?si=df4c1ab070194b81" target="_blank" class="social-btn spotify spotify-full">
+                    <i class="fab fa-spotify"></i> Spotify Playlist
+                </a>
+            </div>
+            <div class="footer-note">✦ make by Gok ✦</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('overlay').addEventListener('click', function() {
+            this.classList.add('hidden');
+        });
+
+        const DISCORD_USER_ID = '963028835480248390';
+        const API_URL = `https://api.lanyard.rest/v1/users/${DISCORD_USER_ID}`;
+
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const avatarImg = document.getElementById('avatarImg');
+
+        // Spotify elements
+        const spotifyBlock = document.getElementById('spotifyBlock');
+        const spotifySong = document.getElementById('spotifySong');
+        const spotifyArtist = document.getElementById('spotifyArtist');
+        const spotifyCurrent = document.getElementById('spotifyCurrent');
+        const spotifyDuration = document.getElementById('spotifyDuration');
+        const spotifyProgress = document.getElementById('spotifyProgress');
+
+        // YouTube elements
+        const youtubeBlock = document.getElementById('youtubeBlock');
+        const youtubeTitle = document.getElementById('youtubeTitle');
+        const youtubeChannel = document.getElementById('youtubeChannel');
+        const youtubeCurrent = document.getElementById('youtubeCurrent');
+        const youtubeDuration = document.getElementById('youtubeDuration');
+        const youtubeProgress = document.getElementById('youtubeProgress');
+
+        // Game elements
+        const gameBlock = document.getElementById('gameBlock');
+        const gameTitle = document.getElementById('gameTitle');
+        const gameDetail = document.getElementById('gameDetail');
+        const gameCurrent = document.getElementById('gameCurrent');
+        const gameDuration = document.getElementById('gameDuration');
+        const gameProgress = document.getElementById('gameProgress');
+
+        let spotifyInterval = null;
+        let youtubeInterval = null;
+        let gameInterval = null;
+        let currentActivity = null; // 'spotify', 'youtube', 'game'
+        let previousAvatarHash = null;
+
+        const statusMap = {
+            online: { dot: 'online', text: '● Online' },
+            idle: { dot: 'idle', text: '● Idle' },
+            dnd: { dot: 'dnd', text: '● Do Not Disturb' },
+            offline: { dot: 'offline', text: '● Offline' },
+        };
+
+        function updateStatus(status) {
+            const data = statusMap[status] || statusMap.offline;
+            statusDot.className = `status-dot ${data.dot}`;
+            return data.text;
+        }
+
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds) || seconds < 0) return '0:00';
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function updateProgress(blockData, currentEl, progressEl) {
+            if (!blockData) return;
+            const { start, end } = blockData;
+            const now = Date.now();
+            const elapsed = (now - start) / 1000;
+            const total = (end - start) / 1000;
+            const progress = Math.min(elapsed / total, 1);
+            const currentTime = Math.min(elapsed, total);
+            currentEl.textContent = formatTime(currentTime);
+            progressEl.style.width = `${progress * 100}%`;
+        }
+
+        function stopAllIntervals() {
+            if (spotifyInterval) { clearInterval(spotifyInterval);
+                spotifyInterval = null; }
+            if (youtubeInterval) { clearInterval(youtubeInterval);
+                youtubeInterval = null; }
+            if (gameInterval) { clearInterval(gameInterval);
+                gameInterval = null; }
+        }
+
+        function hideAllBlocks() {
+            spotifyBlock.classList.remove('active');
+            youtubeBlock.classList.remove('active');
+            gameBlock.classList.remove('active');
+            statusText.style.display = 'inline-block';
+            currentActivity = null;
+        }
+
+        function showActivity(type, data) {
+            hideAllBlocks();
+            stopAllIntervals();
+            currentActivity = type;
+
+            if (type === 'spotify') {
+                spotifyBlock.classList.add('active');
+                spotifySong.textContent = data.song || 'Bài hát';
+                spotifyArtist.textContent = data.artist || 'Nghệ sĩ';
+                const start = data.start || null;
+                const end = data.end || null;
+                if (start && end) {
+                    const blockData = { start, end };
+                    const total = (end - start) / 1000;
+                    spotifyDuration.textContent = formatTime(total);
+                    updateProgress(blockData, spotifyCurrent, spotifyProgress);
+                    spotifyInterval = setInterval(() => {
+                        updateProgress(blockData, spotifyCurrent, spotifyProgress);
+                    }, 1000);
+                } else {
+                    spotifyDuration.textContent = '0:00';
+                    spotifyCurrent.textContent = '0:00';
+                    spotifyProgress.style.width = '0%';
+                }
+                statusText.style.display = 'none';
+            } else if (type === 'youtube') {
+                youtubeBlock.classList.add('active');
+                youtubeTitle.textContent = data.title || 'Tiêu đề video';
+                youtubeChannel.textContent = data.channel || '';
+                const start = data.start || null;
+                const end = data.end || null;
+                if (start && end) {
+                    const blockData = { start, end };
+                    const total = (end - start) / 1000;
+                    youtubeDuration.textContent = formatTime(total);
+                    updateProgress(blockData, youtubeCurrent, youtubeProgress);
+                    youtubeInterval = setInterval(() => {
+                        updateProgress(blockData, youtubeCurrent, youtubeProgress);
+                    }, 1000);
+                } else {
+                    youtubeDuration.textContent = '0:00';
+                    youtubeCurrent.textContent = '0:00';
+                    youtubeProgress.style.width = '0%';
+                }
+                statusText.style.display = 'none';
+            } else if (type === 'game') {
+                gameBlock.classList.add('active');
+                gameTitle.textContent = data.title || 'Tên game';
+                gameDetail.textContent = data.detail || '';
+                const start = data.start || null;
+                const end = data.end || null;
+                if (start && end) {
+                    const blockData = { start, end };
+                    const total = (end - start) / 1000;
+                    gameDuration.textContent = formatTime(total);
+                    updateProgress(blockData, gameCurrent, gameProgress);
+                    gameInterval = setInterval(() => {
+                        updateProgress(blockData, gameCurrent, gameProgress);
+                    }, 1000);
+                } else {
+                    gameDuration.textContent = '0:00';
+                    gameCurrent.textContent = '0:00';
+                    gameProgress.style.width = '0%';
+                }
+                statusText.style.display = 'none';
+            }
+        }
+
+        async function fetchDiscordStatus() {
+            statusText.textContent = '⏳ Đang tải...';
+            statusText.className = 'status-text offline';
+            hideAllBlocks();
+            stopAllIntervals();
+
+            try {
+                const res = await fetch(API_URL);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+
+                if (json.success && json.data) {
+                    const data = json.data;
+
+                    // Avatar
+                    const currentAvatarHash = data.avatar || null;
+                    if (currentAvatarHash !== previousAvatarHash) {
+                        previousAvatarHash = currentAvatarHash;
+                        if (currentAvatarHash) {
+                            const avatarUrl = `https://cdn.discordapp.com/avatars/${DISCORD_USER_ID}/${currentAvatarHash}.png?size=128&t=${Date.now()}`;
+                            avatarImg.src = avatarUrl;
+                            avatarImg.className = 'show';
+                        } else {
+                            avatarImg.className = '';
+                        }
+                    }
+
+                    const defaultStatusText = updateStatus(data.discord_status);
+
+                    // ---- XỬ LÝ ACTIVITY: Ưu tiên Spotify > YouTube > Game ----
+                    let activityShown = false;
+
+                    // 1. Spotify
+                    if (data.spotify && data.spotify.song) {
+                        const sp = data.spotify;
+                        const start = sp.timestamps?.start ? new Date(sp.timestamps.start).getTime() : null;
+                        const end = sp.timestamps?.end ? new Date(sp.timestamps.end).getTime() : null;
+                        showActivity('spotify', {
+                            song: sp.song,
+                            artist: sp.artist,
+                            start: start,
+                            end: end
+                        });
+                        activityShown = true;
+                    } else {
+                        // 2. YouTube (tìm trong activities)
+                        let youtubeAct = null;
+                        let gameAct = null;
+                        if (data.activities && data.activities.length > 0) {
+                            for (const act of data.activities) {
+                                if (act.type === 4) continue; // bỏ custom status
+                                if (act.name && act.name.toLowerCase().includes('youtube')) {
+                                    youtubeAct = act;
+                                    break;
+                                }
+                                if (!gameAct && act.name) {
+                                    gameAct = act;
+                                }
+                            }
+                        }
+
+                        if (youtubeAct) {
+                            const start = youtubeAct.timestamps?.start ? new Date(youtubeAct.timestamps.start).getTime() : null;
+                            const end = youtubeAct.timestamps?.end ? new Date(youtubeAct.timestamps.end).getTime() : null;
+                            showActivity('youtube', {
+                                title: youtubeAct.details || youtubeAct.name,
+                                channel: youtubeAct.state || '',
+                                start: start,
+                                end: end
+                            });
+                            activityShown = true;
+                        } else if (gameAct) {
+                            const start = gameAct.timestamps?.start ? new Date(gameAct.timestamps.start).getTime() : null;
+                            const end = gameAct.timestamps?.end ? new Date(gameAct.timestamps.end).getTime() : null;
+                            const detail = gameAct.details || '';
+                            const state = gameAct.state || '';
+                            const sub = detail + (state ? ` • ${state}` : '');
+                            showActivity('game', {
+                                title: gameAct.name,
+                                detail: sub,
+                                start: start,
+                                end: end
+                            });
+                            activityShown = true;
+                        }
+                    }
+
+                    // Nếu không có hoạt động nào, hiển thị status thường
+                    if (!activityShown) {
+                        hideAllBlocks();
+                        statusText.textContent = defaultStatusText;
+                        const dotType = data.discord_status || 'offline';
+                        statusText.className = `status-text ${dotType}`;
+                        statusText.style.display = 'inline-block';
+                    }
+
+                } else {
+                    const fallback = statusMap.offline;
+                    statusDot.className = `status-dot ${fallback.dot}`;
+                    statusText.textContent = fallback.text;
+                    statusText.className = 'status-text offline';
+                    hideAllBlocks();
+                    stopAllIntervals();
+                }
+            } catch (e) {
+                console.error('⚠️ Lỗi fetch Discord:', e);
+                const fallback = statusMap.offline;
+                statusDot.className = `status-dot ${fallback.dot}`;
+                statusText.textContent = fallback.text;
+                statusText.className = 'status-text offline';
+                hideAllBlocks();
+                stopAllIntervals();
+            }
+        }
+
+        fetchDiscordStatus();
+        setInterval(fetchDiscordStatus, 60000);
+    </script>
+</body>
+</html>
