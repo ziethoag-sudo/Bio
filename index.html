@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bio</title>
+    <title>Bio · Goc</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         * {
@@ -151,8 +151,30 @@
         body.light-mode .weather-widget .temp {
             color: #222;
         }
+        body.light-mode .view-counter {
+            color: #555;
+        }
+        body.light-mode .analog-clock {
+            border-color: #ccc;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        body.light-mode .analog-clock .center-dot {
+            background: #222;
+        }
+        body.light-mode .analog-clock .hand {
+            background: #222;
+        }
 
         #snowCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        #burstCanvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -228,6 +250,33 @@
             display: inline-block;
         }
 
+        /* ===== ANALOG CLOCK ===== */
+        .analog-clock {
+            position: fixed;
+            bottom: 100px;
+            right: 32px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 900;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.8s ease;
+        }
+        .analog-clock.show {
+            display: flex;
+        }
+        .analog-clock canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
         .overlay {
             position: fixed;
             top: 0;
@@ -301,23 +350,45 @@
             }
         }
 
-        .card {
-            max-width: 500px;
+        .card-wrapper {
+            max-width: 504px;
             width: 100%;
+            padding: 4px;
+            border-radius: 28px;
+            background: conic-gradient(from 0deg, #5865f2, #ff6b6b, #faa81a, #1db954, #5865f2);
+            background-size: 200% 200%;
+            animation: spinBorder 4s linear infinite;
+            box-shadow: 0 0 40px rgba(88, 101, 242, 0.3);
+            transition: transform 0.1s ease;
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes spinBorder {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .card {
             background: #1e1e1e;
             border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            transition: transform 0.3s ease, background 0.5s ease, border-color 0.5s ease;
-            border: 2px solid #1a1a1a;
+            width: 100%;
             position: relative;
-            z-index: 1;
+            z-index: 2;
+            transition: transform 0.1s ease, background 0.5s ease, border-color 0.5s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
         }
         .card:hover {
             transform: scale(1.01);
         }
 
-        /* ===== BANNER SLIDESHOW ===== */
         .banner {
             height: 160px;
             position: relative;
@@ -362,12 +433,11 @@
             background: #fff;
         }
 
-        /* ===== AVATAR - KHOẢNG CÁCH RIÊNG ===== */
         .avatar-wrap {
             position: relative;
-            margin-top: -20px; /* Giảm từ -30px xuống -20px để avatar cách banner một khoảng rõ ràng */
+            margin-top: -20px;
             padding: 0 24px;
-            padding-top: 12px; /* Tăng padding-top để tạo khoảng cách đẹp */
+            padding-top: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -406,12 +476,26 @@
             width: 100%;
             height: 100%;
         }
-        .avatar img.show + .fallback-icon {
+        .avatar img.show+.fallback-icon {
             display: none;
         }
         .avatar:hover {
             transform: rotate(-4deg) scale(1.02);
             box-shadow: 0 0 30px rgba(88, 101, 242, 0.6);
+        }
+
+        /* Avatar glow theo status */
+        .avatar.glow-online {
+            box-shadow: 0 0 30px rgba(59, 165, 93, 0.7);
+        }
+        .avatar.glow-idle {
+            box-shadow: 0 0 30px rgba(250, 168, 26, 0.7);
+        }
+        .avatar.glow-dnd {
+            box-shadow: 0 0 30px rgba(237, 66, 69, 0.7);
+        }
+        .avatar.glow-offline {
+            box-shadow: 0 0 30px rgba(116, 127, 141, 0.4);
         }
 
         .status-ring {
@@ -431,7 +515,7 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            transition: background 0.3s ease;
+            transition: background 0.3s ease, transform 0.3s ease;
         }
         .status-dot.online {
             background: #3ba55d;
@@ -451,6 +535,13 @@
             text-align: center;
             width: 100%;
         }
+        .user-info .user-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+            letter-spacing: -0.5px;
+        }
         .user-info .badge {
             display: inline-block;
             background: #5865f2;
@@ -459,18 +550,36 @@
             font-weight: 600;
             padding: 2px 12px;
             border-radius: 30px;
-            margin-top: 4px;
+            margin-top: 2px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .user-info .tag {
             color: #aaa;
             font-size: 0.9rem;
-            margin-top: 2px;
+            margin-top: 4px;
             display: block;
         }
+        /* Typewriter cho tên và tag */
+        .typewriter-name {
+            display: inline-block;
+        }
+        .typewriter-tag {
+            display: inline-block;
+        }
+        .cursor-blink {
+            animation: blinkCursor 0.8s step-end infinite;
+        }
+        @keyframes blinkCursor {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
 
-        /* ===== STATUS BLOCK ===== */
         .status-block {
             padding: 0 24px;
             margin-bottom: 16px;
@@ -586,18 +695,59 @@
             border-radius: 4px;
             transition: width 0.1s linear;
         }
+
         .spotify-block .header {
             color: #1db954;
         }
         .spotify-block .progress-fill {
             background: #1db954;
         }
+        .spotify-block .act-body {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+        .vinyl {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 3px solid #1db954;
+            animation: spinVinyl 4s linear infinite;
+            background: #222;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(29, 185, 84, 0.3);
+        }
+        .vinyl img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .vinyl .fallback {
+            font-size: 1.8rem;
+            color: #1db954;
+        }
+        @keyframes spinVinyl {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .spotify-block .act-content {
+            flex: 1;
+            min-width: 0;
+        }
+
         .youtube-block .header {
             color: #ff0000;
         }
         .youtube-block .progress-fill {
             background: #ff0000;
         }
+
         .game-block .header {
             color: #8b5cf6;
         }
@@ -633,6 +783,27 @@
             50% {
                 opacity: 0;
             }
+        }
+
+        /* ===== SHARE BUTTON ===== */
+        .share-btn {
+            display: inline-block;
+            margin: 8px auto 0;
+            padding: 6px 18px;
+            border-radius: 30px;
+            background: rgba(88, 101, 242, 0.15);
+            border: 1px solid #5865f2;
+            color: #5865f2;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        .share-btn:hover {
+            background: #5865f2;
+            color: #fff;
+            transform: scale(1.02);
         }
 
         .social-grid {
@@ -721,6 +892,51 @@
             color: #888;
             font-weight: 500;
         }
+        .footer-note .live-counter {
+            color: #1db954;
+            font-weight: 600;
+            animation: pulseLive 2s infinite;
+        }
+        @keyframes pulseLive {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* ===== WIDGET THỐNG KÊ ===== */
+        .stats-widget {
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid #2a2a2a;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+        .stats-widget .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .stats-widget .stat-item .stat-num {
+            font-weight: 700;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .stats-widget .stat-item .stat-label {
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.6rem;
+        }
 
         .weather-widget {
             margin-top: 12px;
@@ -758,7 +974,6 @@
             font-weight: 600;
         }
 
-        /* ===== AMBIENT MUSIC TOGGLE ===== */
         .ambient-toggle {
             position: fixed;
             bottom: 30px;
@@ -853,27 +1068,57 @@
                 font-size: 0.75rem;
                 padding: 6px 12px;
             }
+            .spotify-block .act-body {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .vinyl {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto;
+            }
+            .analog-clock {
+                width: 50px;
+                height: 50px;
+                bottom: 80px;
+                right: 16px;
+            }
+            .stats-widget {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- ===== THEME TOGGLE ===== -->
     <button class="theme-toggle" id="themeToggle" title="Chuyển chế độ sáng/tối">
         <i class="fas fa-moon"></i>
     </button>
 
+    <!-- ===== AMBIENT TOGGLE ===== -->
     <button class="ambient-toggle" id="ambientToggle" title="Bật/tắt nhạc nền">
         <i class="fas fa-headphones"></i>
     </button>
 
+    <!-- ===== DATETIME ===== -->
     <div class="datetime-widget" id="datetimeWidget">
         <div class="time" id="clock">22:17</div>
         <div class="date" id="date">WED · JUL 15 · 2026</div>
     </div>
 
-    <canvas id="snowCanvas"></canvas>
+    <!-- ===== ANALOG CLOCK ===== -->
+    <div class="analog-clock" id="analogClock">
+        <canvas id="analogCanvas" width="70" height="70"></canvas>
+    </div>
 
-    <div class="overlay" id="overlay">
+    <!-- ===== CANVAS ===== -->
+    <canvas id="snowCanvas"></canvas>
+    <canvas id="burstCanvas"></canvas>
+
+    <!-- ===== OVERLAY ===== -->
+    <div class="overlay" id="overlay" onclick="handleOverlayClick()">
         <div class="overlay-content">
             <i class="fas fa-mouse-pointer"></i>
             <h1>click vào đi :3</h1>
@@ -881,121 +1126,192 @@
         </div>
     </div>
 
-    <div class="card" id="bioCard">
-        <div class="banner" id="banner">
-            <div class="slide active" style="background-image: url('https://4kwallpapers.com/images/wallpapers/lumine-intertwined-1920x1080-26732.jpg');"></div>
-            <div class="slide" style="background-image: url('https://4kwallpapers.com/images/wallpapers/mita-miside-santa-1920x1080-21052.jpg');"></div>
-            <div class="slide" style="background-image: url('https://4kwallpapers.com/images/wallpapers/snowy-mountain-winter-3840x2160-11110.jpg');"></div>
-            <div class="dot-container" id="dotContainer"></div>
-        </div>
+    <!-- ===== CARD WRAPPER ===== -->
+    <div class="card-wrapper" id="cardWrapper">
 
-        <div class="avatar-wrap">
-            <div class="avatar" id="avatarContainer">
-                <img id="avatarImg" src="https://4kwallpapers.com/images/wallpapers/mita-miside-santa-1920x1080-21052.jpg" alt="Avatar" class="show" />
-                <div class="fallback-icon"><i class="fas fa-user-astronaut"></i></div>
-                <div class="status-ring"><div class="status-dot offline" id="statusDot"></div></div>
+        <!-- ===== CARD ===== -->
+        <div class="card" id="bioCard">
+
+            <!-- BANNER -->
+            <div class="banner" id="banner">
+                <div class="slide active" style="background-image: url('https://4kwallpapers.com/images/wallpapers/lumine-intertwined-1920x1080-26732.jpg');"></div>
+                <div class="slide" style="background-image: url('https://4kwallpapers.com/images/wallpapers/mita-miside-santa-1920x1080-21052.jpg');"></div>
+                <div class="slide" style="background-image: url('https://4kwallpapers.com/images/wallpapers/snowy-mountain-winter-3840x2160-11110.jpg');"></div>
+                <div class="dot-container" id="dotContainer"></div>
             </div>
-            <div class="user-info">
-                <span class="badge">👑 Gamer</span>
-                <span class="tag">@aokiareal • he/him</span>
-            </div>
-        </div>
 
-        <div class="status-block">
-            <div class="status-container">
-                <div class="status-text offline" id="statusText">● Offline</div>
-
-                <div class="activity-block spotify-block" id="spotifyBlock">
-                    <div class="header"><i class="fab fa-spotify"></i> Cùng lắng nghe Spotify</div>
-                    <div class="title" id="spotifySong">Bài hát</div>
-                    <div class="sub" id="spotifyArtist">Nghệ sĩ</div>
-                    <div class="progress-wrap">
-                        <span class="time" id="spotifyCurrent">0:00</span>
-                        <div class="progress-bar"><div class="progress-fill" id="spotifyProgress"></div></div>
-                        <span class="time" id="spotifyDuration">0:00</span>
-                    </div>
+            <!-- AVATAR -->
+            <div class="avatar-wrap">
+                <div class="avatar" id="avatarContainer">
+                    <img id="avatarImg" src="https://4kwallpapers.com/images/wallpapers/mita-miside-santa-1920x1080-21052.jpg" alt="Avatar" class="show" />
+                    <div class="fallback-icon"><i class="fas fa-user-astronaut"></i></div>
+                    <div class="status-ring"><div class="status-dot offline" id="statusDot"></div></div>
                 </div>
-
-                <div class="activity-block youtube-block" id="youtubeBlock">
-                    <div class="header"><i class="fab fa-youtube"></i> Đang xem YouTube</div>
-                    <div class="title" id="youtubeTitle">Tiêu đề video</div>
-                    <div class="sub" id="youtubeChannel">Kênh</div>
-                    <div class="progress-wrap">
-                        <span class="time" id="youtubeCurrent">0:00</span>
-                        <div class="progress-bar"><div class="progress-fill" id="youtubeProgress"></div></div>
-                        <span class="time" id="youtubeDuration">0:00</span>
-                    </div>
-                </div>
-
-                <div class="activity-block game-block" id="gameBlock">
-                    <div class="header"><i class="fas fa-gamepad"></i> Đang chơi game</div>
-                    <div class="title" id="gameTitle">Tên game</div>
-                    <div class="sub" id="gameDetail">Chi tiết</div>
-                    <div class="progress-wrap">
-                        <span class="time" id="gameCurrent">0:00</span>
-                        <div class="progress-bar"><div class="progress-fill" id="gameProgress"></div></div>
-                        <span class="time" id="gameDuration">0:00</span>
-                    </div>
+                <div class="user-info">
+                    <!-- Tên hiển thị: Goc -->
+                    <h1 class="user-name" id="userNameDisplay">Goc</h1>
+                    <span class="badge" id="badgeText">👑 Gamer</span>
+                    <span class="tag" id="tagText">@goc • he/him</span>
                 </div>
             </div>
 
-            <div class="weather-widget" id="weatherWidget">
-                <i class="fas fa-cloud-sun"></i>
-                <span id="weatherTemp">--°C</span>
-                <span id="weatherDesc">Đang tải...</span>
+            <!-- STATUS -->
+            <div class="status-block">
+                <div class="status-container">
+                    <div class="status-text offline" id="statusText">● Offline</div>
+
+                    <!-- SPOTIFY -->
+                    <div class="activity-block spotify-block" id="spotifyBlock">
+                        <div class="header"><i class="fab fa-spotify"></i> Cùng lắng nghe Spotify</div>
+                        <div class="act-body">
+                            <div class="vinyl" id="vinylDisc">
+                                <img id="vinylImg" src="" alt="album" style="display:none;" />
+                                <span class="fallback"><i class="fas fa-music"></i></span>
+                            </div>
+                            <div class="act-content">
+                                <div class="title" id="spotifySong">Bài hát</div>
+                                <div class="sub" id="spotifyArtist">Nghệ sĩ</div>
+                                <div class="progress-wrap">
+                                    <span class="time" id="spotifyCurrent">0:00</span>
+                                    <div class="progress-bar"><div class="progress-fill" id="spotifyProgress"></div></div>
+                                    <span class="time" id="spotifyDuration">0:00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- YOUTUBE -->
+                    <div class="activity-block youtube-block" id="youtubeBlock">
+                        <div class="header"><i class="fab fa-youtube"></i> Đang xem YouTube</div>
+                        <div class="title" id="youtubeTitle">Tiêu đề video</div>
+                        <div class="sub" id="youtubeChannel">Kênh</div>
+                        <div class="progress-wrap">
+                            <span class="time" id="youtubeCurrent">0:00</span>
+                            <div class="progress-bar"><div class="progress-fill" id="youtubeProgress"></div></div>
+                            <span class="time" id="youtubeDuration">0:00</span>
+                        </div>
+                    </div>
+
+                    <!-- GAME -->
+                    <div class="activity-block game-block" id="gameBlock">
+                        <div class="header"><i class="fas fa-gamepad"></i> Đang chơi game</div>
+                        <div class="title" id="gameTitle">Tên game</div>
+                        <div class="sub" id="gameDetail">Chi tiết</div>
+                        <div class="progress-wrap">
+                            <span class="time" id="gameCurrent">0:00</span>
+                            <div class="progress-bar"><div class="progress-fill" id="gameProgress"></div></div>
+                            <span class="time" id="gameDuration">0:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WEATHER -->
+                <div class="weather-widget" id="weatherWidget">
+                    <i class="fas fa-cloud-sun"></i>
+                    <span id="weatherTemp">--°C</span>
+                    <span id="weatherDesc">Đang tải...</span>
+                </div>
+
+                <!-- SPECIAL DAY -->
+                <div class="special-day" id="specialDay">
+                    🐱 Đã yêu mèo được <span id="dayCount">0</span> ngày
+                </div>
+
+                <!-- ===== STATS WIDGET ===== -->
+                <div class="stats-widget" id="statsWidget">
+                    <div class="stat-item">
+                        <span class="stat-num" id="statVisits">0</span>
+                        <span class="stat-label">Lượt mở</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num" id="statClicks">0</span>
+                        <span class="stat-label">Số click</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num" id="statOnline">0</span>
+                        <span class="stat-label">Online (giây)</span>
+                    </div>
+                </div>
+
+                <!-- ===== SHARE BUTTON ===== -->
+                <button class="share-btn" id="shareBtn"><i class="fas fa-share-alt"></i> Chia sẻ bio</button>
+
             </div>
 
-            <div class="special-day" id="specialDay">
-                🐱 Đã yêu mèo được <span id="dayCount">0</span> ngày
+            <!-- CONTENT -->
+            <div class="content" style="padding: 0 24px 30px;">
+                <div class="bio" id="bioText">
+                    <i class="fas fa-quote-left" style="color:#5865f2; margin-right:6px;"></i>
+                    <span id="typewriterText"></span><span class="typewriter-cursor"></span>
+                </div>
+
+                <div class="social-grid">
+                    <a href="https://discord.gg/tY4t2SSRe" target="_blank" class="social-btn discord">
+                        <i class="fab fa-discord"></i> Discord
+                    </a>
+                    <a href="https://steamcommunity.com/profiles/76561199205244634/" target="_blank" class="social-btn steam">
+                        <i class="fab fa-steam"></i> Steam
+                    </a>
+                    <a href="https://www.last.fm/user/Gokisreal" target="_blank" class="social-btn lastfm">
+                        <i class="fab fa-lastfm"></i> Last.fm
+                    </a>
+                    <a href="https://open.spotify.com/playlist/3qq5H5jE5G87PXK8T4pUvr?si=df4c1ab070194b81" target="_blank" class="social-btn spotify spotify-full">
+                        <i class="fab fa-spotify"></i> Spotify Playlist
+                    </a>
+                </div>
+
+                <div class="footer-note">
+                    ✦ make by Goc ✦
+                    <br />
+                    <span class="view-count">✨ Lượt xem: <span id="viewCount">0</span> ✨</span>
+                    <br />
+                    <span class="live-counter">🔴 <span id="liveCount">0</span> người đang xem cùng bạn</span>
+                </div>
             </div>
+
         </div>
+        <!-- end card -->
 
-        <div class="content">
-            <div class="bio" id="bioText">
-                <i class="fas fa-quote-left" style="color:#5865f2; margin-right:6px;"></i>
-                <span id="typewriterText"></span><span class="typewriter-cursor"></span>
-            </div>
-
-            <div class="social-grid">
-                <a href="https://discord.gg/tY4t2SSRe" target="_blank" class="social-btn discord">
-                    <i class="fab fa-discord"></i> Discord
-                </a>
-                <a href="https://steamcommunity.com/profiles/76561199205244634/" target="_blank" class="social-btn steam">
-                    <i class="fab fa-steam"></i> Steam
-                </a>
-                <a href="https://www.last.fm/user/Gokisreal" target="_blank" class="social-btn lastfm">
-                    <i class="fab fa-lastfm"></i> Last.fm
-                </a>
-                <a href="https://open.spotify.com/playlist/3qq5H5jE5G87PXK8T4pUvr?si=df4c1ab070194b81" target="_blank" class="social-btn spotify spotify-full">
-                    <i class="fab fa-spotify"></i> Spotify Playlist
-                </a>
-            </div>
-
-            <div class="footer-note">
-                ✦ make by Gok ✦
-                <br />
-                <span class="view-count">✨ Lượt xem: <span id="viewCount">0</span> ✨</span>
-            </div>
-        </div>
     </div>
+    <!-- end card-wrapper -->
 
-    <audio id="ambientAudio" loop>
-        <source src="" type="audio/mpeg" />
-    </audio>
+    <!-- ===== AMBIENT AUDIO ===== -->
+    <audio id="ambientAudio" loop></audio>
 
     <script>
-        // ----- OVERLAY -----
-        document.getElementById('overlay').addEventListener('click', function() {
-            this.classList.add('hidden');
+        // ============================================================
+        // 0. OVERLAY HANDLER
+        // ============================================================
+        let overlayClicked = false;
+
+        function handleOverlayClick() {
+            if (overlayClicked) return;
+            overlayClicked = true;
+            console.log('🔘 Overlay clicked - hiding now');
+            const overlay = document.getElementById('overlay');
+            overlay.classList.add('hidden');
+
             document.getElementById('datetimeWidget').classList.add('show');
             document.getElementById('ambientToggle').classList.add('show');
+            document.getElementById('analogClock').classList.add('show');
+
+            // Bắt đầu các hiệu ứng động
             startTypewriter();
             updateViewCount();
             fetchWeather();
             calculateSpecialDay();
-        });
+            startLiveCounter();
+            startStatsCounter();
+            startAnalogClock();
+            // Typewriter cho tên và tag (đã có sẵn trong HTML, không cần typewriter nữa)
 
-        // ----- ĐỒNG HỒ -----
+            // Bắt đầu đếm thời gian online
+            startOnlineTimer();
+        }
+
+        // ============================================================
+        // 1. CLOCK (digital)
+        // ============================================================
         function updateClock() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('vi-VN', {
@@ -1019,21 +1335,99 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // ----- CHẾ ĐỘ SÁNG/TỐI -----
-        const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', () => {
+        // ============================================================
+        // 2. ANALOG CLOCK
+        // ============================================================
+        function startAnalogClock() {
+            const canvas = document.getElementById('analogCanvas');
+            const ctx = canvas.getContext('2d');
+            const size = 70;
+            canvas.width = size;
+            canvas.height = size;
+
+            function drawClock() {
+                ctx.clearRect(0, 0, size, size);
+                const now = new Date();
+                const h = now.getHours() % 12;
+                const m = now.getMinutes();
+                const s = now.getSeconds();
+
+                // Vẽ mặt đồng hồ
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, size / 2 - 4, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // Vạch giờ
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
+                    const x1 = size / 2 + Math.cos(angle) * (size / 2 - 12);
+                    const y1 = size / 2 + Math.sin(angle) * (size / 2 - 12);
+                    const x2 = size / 2 + Math.cos(angle) * (size / 2 - 6);
+                    const y2 = size / 2 + Math.sin(angle) * (size / 2 - 6);
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+                    ctx.lineWidth = i % 3 === 0 ? 2 : 1;
+                    ctx.stroke();
+                }
+
+                // Kim giờ
+                const hourAngle = (h / 12) * Math.PI * 2 + (m / 60) * (Math.PI / 6) - Math.PI / 2;
+                drawHand(ctx, hourAngle, size / 2 - 20, 3, '#fff');
+
+                // Kim phút
+                const minAngle = (m / 60) * Math.PI * 2 - Math.PI / 2;
+                drawHand(ctx, minAngle, size / 2 - 10, 2, '#aaa');
+
+                // Kim giây
+                const secAngle = (s / 60) * Math.PI * 2 - Math.PI / 2;
+                drawHand(ctx, secAngle, size / 2 - 6, 1.5, '#ff6b6b');
+
+                // Tâm
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+            }
+
+            function drawHand(ctx, angle, length, width, color) {
+                const x = size / 2 + Math.cos(angle) * length;
+                const y = size / 2 + Math.sin(angle) * length;
+                ctx.beginPath();
+                ctx.moveTo(size / 2, size / 2);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = width;
+                ctx.stroke();
+            }
+
+            drawClock();
+            setInterval(drawClock, 1000);
+        }
+
+        // ============================================================
+        // 3. THEME TOGGLE
+        // ============================================================
+        document.getElementById('themeToggle').addEventListener('click', () => {
             document.body.classList.toggle('light-mode');
-            const icon = themeToggle.querySelector('i');
+            const icon = document.getElementById('themeToggle').querySelector('i');
             icon.className = document.body.classList.contains('light-mode') ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // ----- NHẠC AMBIENT (tạm thời chưa có link) -----
+        // ============================================================
+        // 4. AMBIENT MUSIC
+        // ============================================================
         const ambientToggle = document.getElementById('ambientToggle');
         const ambientAudio = document.getElementById('ambientAudio');
         let isAmbientPlaying = false;
 
         ambientToggle.addEventListener('click', () => {
-            if (!ambientAudio.src) {
+            if (!ambientAudio.src || ambientAudio.src === window.location.href || ambientAudio.src === '') {
                 alert('Chưa có link nhạc! Vui lòng cung cấp link file nhạc (MP3, WAV, OGG).');
                 return;
             }
@@ -1050,7 +1444,9 @@
             }
         });
 
-        // ----- BANNER SLIDESHOW -----
+        // ============================================================
+        // 5. BANNER SLIDESHOW
+        // ============================================================
         const slides = document.querySelectorAll('.banner .slide');
         const dotContainer = document.getElementById('dotContainer');
         let currentSlide = 0;
@@ -1085,7 +1481,9 @@
         }
         resetSlideInterval();
 
-        // ----- TYPEWRITER -----
+        // ============================================================
+        // 6. TYPEWRITER CHÍNH
+        // ============================================================
         const typewriterTarget = document.getElementById('typewriterText');
         const bioText = 'Fav Chuggi and Love my cat';
         let typewriterIndex = 0;
@@ -1109,7 +1507,9 @@
             }
         }
 
-        // ----- LƯỢT XEM -----
+        // ============================================================
+        // 7. VIEW COUNT & LIVE COUNTER
+        // ============================================================
         function updateViewCount() {
             let count = parseInt(localStorage.getItem('bioViewCount')) || 0;
             count++;
@@ -1117,7 +1517,66 @@
             document.getElementById('viewCount').textContent = count.toLocaleString();
         }
 
-        // ----- THỜI TIẾT -----
+        function startLiveCounter() {
+            setInterval(() => {
+                const num = Math.floor(Math.random() * 14) + 12;
+                document.getElementById('liveCount').textContent = num;
+            }, 5000);
+        }
+
+        // ============================================================
+        // 8. STATS COUNTER
+        // ============================================================
+        function startStatsCounter() {
+            document.getElementById('statVisits').textContent = parseInt(localStorage.getItem('bioViewCount')) || 0;
+            let clicks = parseInt(localStorage.getItem('bioClicks')) || 0;
+            document.getElementById('statClicks').textContent = clicks;
+            document.addEventListener('click', () => {
+                let c = parseInt(localStorage.getItem('bioClicks')) || 0;
+                c++;
+                localStorage.setItem('bioClicks', c);
+                document.getElementById('statClicks').textContent = c;
+            });
+        }
+
+        let onlineSeconds = 0;
+        let onlineInterval = null;
+
+        function startOnlineTimer() {
+            if (onlineInterval) return;
+            onlineInterval = setInterval(() => {
+                onlineSeconds++;
+                document.getElementById('statOnline').textContent = onlineSeconds;
+            }, 1000);
+        }
+
+        // ============================================================
+        // 9. SHARE BUTTON
+        // ============================================================
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Bio của Goc',
+                    text: 'Check bio của mình nè!',
+                    url: url,
+                }).catch(() => {});
+            } else {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert('📋 Đã copy link bio!');
+                    }).catch(() => {
+                        prompt('Copy link này:', url);
+                    });
+                } else {
+                    prompt('Copy link này:', url);
+                }
+            }
+        });
+
+        // ============================================================
+        // 10. WEATHER
+        // ============================================================
         async function fetchWeather() {
             try {
                 const res = await fetch('https://wttr.in/Hanoi?format=j1');
@@ -1141,7 +1600,9 @@
             }
         }
 
-        // ----- NGÀY ĐẶC BIỆT -----
+        // ============================================================
+        // 11. SPECIAL DAY
+        // ============================================================
         function calculateSpecialDay() {
             const start = new Date(2023, 0, 1);
             const now = new Date();
@@ -1149,13 +1610,16 @@
             document.getElementById('dayCount').textContent = diff > 0 ? diff : 0;
         }
 
-        // ===== DISCORD STATUS =====
+        // ============================================================
+        // 12. DISCORD STATUS (Lanyard) - GIỮ NGUYÊN
+        // ============================================================
         const DISCORD_USER_ID = '963028835480248390';
         const API_URL = `https://api.lanyard.rest/v1/users/${DISCORD_USER_ID}`;
 
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
         const avatarImg = document.getElementById('avatarImg');
+        const avatarContainer = document.getElementById('avatarContainer');
 
         const spotifyBlock = document.getElementById('spotifyBlock');
         const spotifySong = document.getElementById('spotifySong');
@@ -1163,6 +1627,7 @@
         const spotifyCurrent = document.getElementById('spotifyCurrent');
         const spotifyDuration = document.getElementById('spotifyDuration');
         const spotifyProgress = document.getElementById('spotifyProgress');
+        const vinylImg = document.getElementById('vinylImg');
 
         const youtubeBlock = document.getElementById('youtubeBlock');
         const youtubeTitle = document.getElementById('youtubeTitle');
@@ -1182,17 +1647,19 @@
         let youtubeInterval = null;
         let gameInterval = null;
         let currentSpotifyData = null;
+        let previousStatus = 'offline';
 
         const statusMap = {
-            online: { dot: 'online', text: '● Online' },
-            idle: { dot: 'idle', text: '● Idle' },
-            dnd: { dot: 'dnd', text: '● Do Not Disturb' },
-            offline: { dot: 'offline', text: '● Offline' },
+            online: { dot: 'online', text: '● Online', glow: 'glow-online' },
+            idle: { dot: 'idle', text: '● Idle', glow: 'glow-idle' },
+            dnd: { dot: 'dnd', text: '● Do Not Disturb', glow: 'glow-dnd' },
+            offline: { dot: 'offline', text: '● Offline', glow: 'glow-offline' },
         };
 
         function updateStatus(status) {
             const data = statusMap[status] || statusMap.offline;
             statusDot.className = `status-dot ${data.dot}`;
+            avatarContainer.className = `avatar ${data.glow}`;
             return data.text;
         }
 
@@ -1254,6 +1721,8 @@
                 gameInterval = null; }
             currentSpotifyData = null;
             statusText.style.display = 'inline-block';
+            document.querySelector('.vinyl .fallback').style.display = 'flex';
+            vinylImg.style.display = 'none';
         }
 
         async function fetchDiscordStatus() {
@@ -1267,13 +1736,29 @@
 
                 if (json.success && json.data) {
                     const data = json.data;
-                    const defaultStatusText = updateStatus(data.discord_status);
+                    const newStatus = data.discord_status || 'offline';
+                    const defaultStatusText = updateStatus(newStatus);
                     let found = false;
+
+                    const currentAvatarHash = data.avatar || null;
+                    if (currentAvatarHash && !avatarImg.src.includes(currentAvatarHash)) {
+                        avatarImg.src =
+                            `https://cdn.discordapp.com/avatars/${DISCORD_USER_ID}/${currentAvatarHash}.png?size=128&t=${Date.now()}`;
+                        avatarImg.className = 'show';
+                    }
 
                     if (data.spotify && data.spotify.song) {
                         const sp = data.spotify;
                         const start = sp.timestamps?.start ? new Date(sp.timestamps.start).getTime() : null;
                         const end = sp.timestamps?.end ? new Date(sp.timestamps.end).getTime() : null;
+                        if (sp.album_art_url) {
+                            vinylImg.src = sp.album_art_url;
+                            vinylImg.style.display = 'block';
+                            document.querySelector('.vinyl .fallback').style.display = 'none';
+                        } else {
+                            document.querySelector('.vinyl .fallback').style.display = 'flex';
+                            vinylImg.style.display = 'none';
+                        }
                         spotifyInterval = showBlock(
                             spotifyBlock,
                             { title: sp.song, sub: sp.artist, start, end },
@@ -1284,6 +1769,8 @@
                         statusText.style.display = 'none';
                         found = true;
                     } else {
+                        document.querySelector('.vinyl .fallback').style.display = 'flex';
+                        vinylImg.style.display = 'none';
                         if (data.activities && data.activities.length > 0) {
                             let youtubeActivity = null;
                             let gameActivity = null;
@@ -1298,8 +1785,8 @@
                             }
 
                             if (youtubeActivity) {
-                                const start = youtubeActivity.timestamps?.start ? new Date(youtubeActivity.timestamps.start)
-                                    .getTime() : null;
+                                const start = youtubeActivity.timestamps?.start ? new Date(youtubeActivity.timestamps
+                                    .start).getTime() : null;
                                 const end = youtubeActivity.timestamps?.end ? new Date(youtubeActivity.timestamps.end)
                                     .getTime() : null;
                                 youtubeInterval = showBlock(
@@ -1346,6 +1833,7 @@
                     statusDot.className = `status-dot ${fallback.dot}`;
                     statusText.textContent = fallback.text;
                     statusText.className = 'status-text offline';
+                    avatarContainer.className = 'avatar glow-offline';
                     hideAllBlocks();
                 }
             } catch (e) {
@@ -1354,6 +1842,7 @@
                 statusDot.className = `status-dot ${fallback.dot}`;
                 statusText.textContent = fallback.text;
                 statusText.className = 'status-text offline';
+                avatarContainer.className = 'avatar glow-offline';
                 hideAllBlocks();
             }
         }
@@ -1361,58 +1850,164 @@
         fetchDiscordStatus();
         setInterval(fetchDiscordStatus, 60000);
 
-        // ===== TUYẾT =====
-        const canvas = document.getElementById('snowCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
+        // ============================================================
+        // 13. 3D TILT EFFECT
+        // ============================================================
+        const card = document.getElementById('bioCard');
+        const wrapper = document.getElementById('cardWrapper');
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / 25;
+            const rotateY = (centerX - x) / 25;
+            wrapper.style.transform =
+                `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            wrapper.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+        });
+
+        // ============================================================
+        // 14. BURST PARTICLES
+        // ============================================================
+        const burstCanvas = document.getElementById('burstCanvas');
+        const bCtx = burstCanvas.getContext('2d');
+        let bWidth, bHeight;
+        let particles = [];
+
+        function resizeBurst() {
+            bWidth = burstCanvas.width = window.innerWidth;
+            bHeight = burstCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeBurst);
+        resizeBurst();
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.radius = Math.random() * 4 + 2;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+                const colors = ['#5865f2', '#ff6b6b', '#faa81a', '#1db954', '#a78bfa', '#ff69b4', '#00d4ff'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.gravity = 0.05;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.vx *= 0.99;
+                this.vy *= 0.99;
+                this.life -= this.decay;
+                this.radius *= 0.995;
+            }
+            draw() {
+                bCtx.beginPath();
+                bCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                bCtx.fillStyle = this.color;
+                bCtx.globalAlpha = this.life;
+                bCtx.fill();
+                bCtx.globalAlpha = 1;
+            }
+        }
+
+        function burstParticles(e) {
+            const x = e.clientX;
+            const y = e.clientY;
+            for (let i = 0; i < 30; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        function animateBurst() {
+            bCtx.clearRect(0, 0, bWidth, bHeight);
+            particles = particles.filter(p => p.life > 0);
+            for (const p of particles) {
+                p.update();
+                p.draw();
+            }
+            requestAnimationFrame(animateBurst);
+        }
+        animateBurst();
+
+        document.addEventListener('click', burstParticles);
+
+        // ============================================================
+        // 15. SNOW (tuyết + lấp lánh)
+        // ============================================================
+        const snowCanvas = document.getElementById('snowCanvas');
+        const sCtx = snowCanvas.getContext('2d');
+        let sWidth, sHeight;
         let snowflakes = [];
         const MAX_SNOWFLAKES = 120;
 
-        function resizeCanvas() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+        function resizeSnow() {
+            sWidth = snowCanvas.width = window.innerWidth;
+            sHeight = snowCanvas.height = window.innerHeight;
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        window.addEventListener('resize', resizeSnow);
+        resizeSnow();
 
         class Snowflake {
             constructor() {
                 this.reset();
             }
             reset() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height - height;
+                this.x = Math.random() * sWidth;
+                this.y = Math.random() * sHeight - sHeight;
                 this.radius = Math.random() * 3 + 2;
                 this.speed = Math.random() * 1 + 0.5;
                 this.wind = (Math.random() - 0.5) * 0.5;
                 this.opacity = Math.random() * 0.6 + 0.4;
+                this.sparkle = Math.random() > 0.95;
+                this.sparklePhase = Math.random() * Math.PI * 2;
             }
             update() {
                 this.y += this.speed;
                 this.x += this.wind + Math.sin(this.y * 0.01) * 0.3;
-                if (this.y > height + 10) {
+                if (this.y > sHeight + 10) {
                     this.reset();
                     this.y = -10;
                 }
-                if (this.x < -10) this.x = width + 10;
-                if (this.x > width + 10) this.x = -10;
+                if (this.x < -10) this.x = sWidth + 10;
+                if (this.x > sWidth + 10) this.x = -10;
+                if (this.sparkle) {
+                    this.sparklePhase += 0.05;
+                    this.opacity = 0.5 + 0.5 * Math.sin(this.sparklePhase);
+                }
             }
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
-                ctx.fill();
+                sCtx.beginPath();
+                sCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                sCtx.fillStyle = `rgba(255,255,255,${this.opacity})`;
+                sCtx.fill();
+                if (this.sparkle) {
+                    sCtx.shadowColor = 'rgba(255,255,255,0.8)';
+                    sCtx.shadowBlur = 10;
+                    sCtx.fill();
+                    sCtx.shadowBlur = 0;
+                }
             }
         }
 
         for (let i = 0; i < MAX_SNOWFLAKES; i++) {
             const flake = new Snowflake();
-            flake.y = Math.random() * height;
+            flake.y = Math.random() * sHeight;
             snowflakes.push(flake);
         }
 
         function animateSnow() {
-            ctx.clearRect(0, 0, width, height);
+            sCtx.clearRect(0, 0, sWidth, sHeight);
             for (const flake of snowflakes) {
                 flake.update();
                 flake.draw();
